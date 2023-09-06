@@ -113,7 +113,11 @@ class TestNewData():
 		id2ent, id2rel, msg_triplets, sup_triplets = [], [], [], []
 		total_triplets = []
 
-		with open(self.path + "msg.txt", 'r') as f:
+		# If in validation mode, read train.txt as the observation/message set
+		# (instead of msg.txt done in the original code)
+		# Only read in msg.txt if in test mode
+		msg_file = "train.txt" if self.data_type == "valid" else "msg.txt"
+		with open(self.path + msg_file, 'r') as f:
 			for line in f.readlines():
 				h, r, t = line.strip().split('\t')
 				id2ent.append(h)
@@ -136,16 +140,22 @@ class TestNewData():
 				sup_triplets.append((self.ent2id[h], self.rel2id[r], self.ent2id[t]))
 				assert (self.ent2id[h], self.rel2id[r], self.ent2id[t]) not in msg_triplets, \
 					(self.ent2id[h], self.rel2id[r], self.ent2id[t]) 
-				total_triplets.append((h,r,t))		
-		for data_type in ['valid', 'test']:
-			if data_type == self.data_type:
-				continue
-			with open(self.path + data_type + ".txt", 'r') as f:
-				for line in f.readlines():
-					h, r, t = line.strip().split('\t')
-					assert (self.ent2id[h], self.rel2id[r], self.ent2id[t]) not in msg_triplets, \
-						(self.ent2id[h], self.rel2id[r], self.ent2id[t]) 
-					total_triplets.append((h,r,t))	
+				total_triplets.append((h,r,t))
+		# Since under our new setting, the validation data are train.txt as message set and valid.txt as supervision set
+		# And the test data are msg.txt as message set and test.txt as supervision set
+		# The total triplets are either train.txt + valid.txt or msg.txt + test.txt
+		# So there is no need to do the following lines
+		# (The following lines are necessary for the original code because
+		#  originally, the total triplets for validation and test are msg.txt + valid.txt + test.txt)	
+		# for data_type in ['valid', 'test']:
+		# 	if data_type == self.data_type:
+		# 		continue
+		# 	with open(self.path + data_type + ".txt", 'r') as f:
+		# 		for line in f.readlines():
+		# 			h, r, t = line.strip().split('\t')
+		# 			assert (self.ent2id[h], self.rel2id[r], self.ent2id[t]) not in msg_triplets, \
+		# 				(self.ent2id[h], self.rel2id[r], self.ent2id[t]) 
+		# 			total_triplets.append((h,r,t))	
 
 
 		filter_dict = {}
