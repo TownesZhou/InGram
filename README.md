@@ -1,3 +1,8 @@
+# Modified for Baseline Comparisons
+
+Modification list:
+
+
 # InGram: Inductive Knowledge Graph Embedding via Relation Graphs
 This code is the official implementation of the following [paper](https://proceedings.mlr.press/v202/lee23c.html):
 
