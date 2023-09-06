@@ -1,0 +1,13 @@
+# Python cache
+__pycache__/
+
+# VSCode
+.vscode/
+
+# Model checkpoints
+ckpt/
+ckpt_paper/
+
+# Slurm related scripts and logs
+debug_slurm.sh
+debug_slurm.txt
