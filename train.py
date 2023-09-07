@@ -5,13 +5,13 @@ import random
 from model import InGram
 import torch
 import numpy as np
-from utils import generate_neg
+from utils import generate_neg, create_hash, wandb_run_name
 import os
 from evaluation import evaluate
 from initialize import initialize
 from my_parser import parse
-from datetime import datetime
 import wandb
+import json
 
 # TODO: Integrate with Weights & Bias
 
@@ -29,22 +29,31 @@ torch.cuda.empty_cache()
 
 # Initialize Weights & Biases logging, and log the arguments for this run
 run_config = vars(args)
-run_config["stage"] = "train"
+run_hash = create_hash(str(vars(args)))
+run_config["run_hash"] = run_hash
+run_config["stage"] = "fit"
 wandb.init(mode="online" if args.wandb else "disabled",  # Turn on wandb logging only if --wandb is set
 		   project=args.wandb_project,
 		   entity=args.wandb_entity,
 		   job_type=args.wandb_job_type,
 		   config=run_config)
 # Custom run name: run hash + model name + task/dataset name
-wandb.run.name = f"{args.data_name} @ {datetime.now().strftime('%m%d%Y|%H:%M:%S')}"
+wandb.run.name = wandb_run_name(run_hash, "fit")
+
+print(f">>>>> Run Hash: {run_hash} <<<<<")
 
 assert args.data_name in os.listdir(args.data_path), f"{args.data_name} Not Found"
 path = args.data_path + args.data_name + "/"
 train = TrainData(path)
 valid = TestNewData(path, data_type = "valid")
 
+ckpt_path = f"ckpt/{args.exp}/{args.data_name}/{run_hash}"
 if not args.no_write:
-	os.makedirs(f"./ckpt/{args.exp}/{args.data_name}", exist_ok=True)
+	os.makedirs(ckpt_path, exist_ok=True)
+	# Save config to JSON file
+	with open(f"{ckpt_path}/config.json", "w") as f:
+		json.dump(vars(args), f)
+
 file_format = f"lr_{args.learning_rate}_dim_{args.dimension_entity}_{args.dimension_relation}" + \
 			  f"_bin_{args.num_bin}_total_{args.num_epoch}_every_{args.validation_epoch}" + \
 			  f"_neg_{args.num_neg}_layer_{args.num_layer_ent}_{args.num_layer_rel}" + \
@@ -112,7 +121,7 @@ for epoch in pbar:
 						'optimizer_state_dict': optimizer.state_dict(), \
 						'inf_emb_ent': val_init_emb_ent, \
 						'inf_emb_rel': val_init_emb_rel}, \
-				f"ckpt/{args.exp}/{args.data_name}/{file_format}_{epoch+1}.ckpt")
+				f"{ckpt_path}/{file_format}_{epoch+1}.ckpt")
 		
 		# Save best checkpoint based on MRR. Best checkpoint is named best.ckpt
 		if metrics[BEST_METRIC_KEY] > best_val_mrr:
@@ -124,7 +133,7 @@ for epoch in pbar:
 							'optimizer_state_dict': optimizer.state_dict(), \
 							'inf_emb_ent': val_init_emb_ent, \
 							'inf_emb_rel': val_init_emb_rel}, \
-					f"ckpt/{args.exp}/{args.data_name}/best.ckpt")
+					f"{ckpt_path}/best.ckpt")
 		# If MRR does not improve, increment early-stop counter
 		else:
 			early_stop_counter += 1

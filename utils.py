@@ -1,4 +1,6 @@
 import numpy as np
+from datetime import datetime
+import hashlib
 
 def remove_duplicate(x):
 	return list(dict.fromkeys(x))
@@ -32,3 +34,22 @@ def get_metrics(rank):
 	hit3 = np.sum(rank < 4) / len(rank)
 	hit1 = np.sum(rank < 2) / len(rank)
 	return mr, mrr, hit10, hit3, hit1
+
+def create_hash(params_string: str) -> str:
+    R"""
+    Create hash from command line argument string. This is mainly for logging purposes.
+    """
+    hasher = hashlib.md5()
+    hasher.update(params_string.encode('utf-8'))
+    raw_hash =  hasher.hexdigest()
+    hash_str = "{}".format(raw_hash)[:8]
+    return hash_str
+
+def wandb_run_name(
+    run_hash: str,
+    stage_name: str,
+) -> str:
+    R"""
+    Create a run name for Weights & Biases.
+    """
+    return f"{run_hash} ({stage_name}) @ {datetime.now().strftime('%m%d%Y|%H:%M:%S')}"

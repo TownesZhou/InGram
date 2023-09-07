@@ -26,6 +26,18 @@ See `dataset.py` for modification details.
 
 Use Weights & Biases for logging.
 
+See `train.py` for modification details and `utils.py` for additional utility functions.
+
+## Modify checkpoint saving directory
+
+Now a hash is created for each run using the hyperparameters specified in the command line arguments, and the model checkpoints are saved in the following directory:
+
+```
+./ckpt/[experiment_name]/[dataset_name]/[run_hash]/
+```
+
+where `[experiment_name]` is the experiment name specified by `--exp` argument, `[dataset_name]` is the name of the dataset specified by `--data_name` argument, and `[hash]` is the hash of the hyperparameters. The hash is created using the `hashlib` library and is the first 8 characters of the SHA-256 hash of the hyperparameters.
+
 See `train.py` for modification details.
 
 ## Early stop and save best model checkpoints during training
