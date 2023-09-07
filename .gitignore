@@ -11,3 +11,6 @@ ckpt_paper/
 # Slurm related scripts and logs
 debug_slurm.sh
 debug_slurm.txt
+
+# Run command examples
+commands.txt
