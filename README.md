@@ -22,6 +22,18 @@ Additionally, when readining triplets from file, separately the line by any whit
 
 See `dataset.py` for modification details.
 
+## Use Weights & Biases for logging
+
+Use Weights & Biases for logging.
+
+See `train.py` for modification details.
+
+## Early stop and save best model checkpoints during training
+
+During trainin, we monitor the `mrr_ent` metric (entity MRR) on the validation set and save the model checkpoint with the best `mrr_ent` metric. The best model checkpoint is named `best.ckpt` and is saved in the same folder as the other episodic model checkpoints.
+
+We also stop training if the `mrr_ent` metric does not improve for 10 epochs.
+
 ## Specify random seed
 
 Allow specify random seed of the experiment in the command line with the argument `--seed`. 

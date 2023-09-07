@@ -10,6 +10,8 @@ import os
 from evaluation import evaluate
 from initialize import initialize
 from my_parser import parse
+from datetime import datetime
+import wandb
 
 # TODO: Integrate with Weights & Bias
 
@@ -24,6 +26,17 @@ torch.autograd.set_detect_anomaly(True)
 torch.backends.cudnn.benchmark = True
 torch.set_num_threads(8)
 torch.cuda.empty_cache()
+
+# Initialize Weights & Biases logging, and log the arguments for this run
+run_config = vars(args)
+run_config["stage"] = "train"
+wandb.init(mode="online" if args.wandb else "disabled",  # Turn on wandb logging only if --wandb is set
+		   project=args.wandb_project,
+		   entity=args.wandb_entity,
+		   job_type=args.wandb_job_type,
+		   config=run_config)
+# Custom run name: run hash + model name + task/dataset name
+wandb.run.name = f"{args.data_name} @ {datetime.now().strftime('%m%d%Y|%H:%M:%S')}"
 
 assert args.data_name in os.listdir(args.data_path), f"{args.data_name} Not Found"
 path = args.data_path + args.data_name + "/"
@@ -83,6 +96,9 @@ for epoch in pbar:
 	total_loss += loss.item()
 	pbar.set_description(f"loss {loss.item()}")	
 
+	# Log training loss to Weights & Biases
+	wandb.log({"loss": loss.item()})
+
 	if ((epoch + 1) % valid_epochs) == 0:
 		print("Validation")
 		my_model.eval()
@@ -117,5 +133,8 @@ for epoch in pbar:
 			if early_stop_counter == 10:
 				print(">>>>> Early stop! <<<<<")
 				break
+
+		# Log validation metrics to Weights & Biases
+		wandb.log(metrics)
 
 		my_model.train()

@@ -8,7 +8,7 @@ def parse(test=False):
     parser.add_argument('--exp', default = 'exp', type = str)
     # Add seed
     parser.add_argument('--seed', default = 0, type = int)
-    
+
     parser.add_argument('-m', '--margin', default = 2, type = float)
     parser.add_argument('-lr', '--learning_rate', default=5e-4, type = float)
     parser.add_argument('-nle', '--num_layer_ent', default = 2, type = int)
@@ -27,6 +27,12 @@ def parse(test=False):
     parser.add_argument('--best', action = 'store_true')
     if not test:
         parser.add_argument('--no_write', action = 'store_true')
+
+    # Support Weight & Biases logging
+    parser.add_argument("--wandb", action="store_true", help="Use Weights & Biases for logging")
+    parser.add_argument("--wandb-project", type=str, required=False, help="Weights & Biases project name")
+    parser.add_argument("--wandb-entity", type=str, required=False, help="Weights & Biases team name/account username")
+    parser.add_argument("--wandb-job-type", type=str, required=False, help="Weights & Biases job type")
 
     args = parser.parse_args()
 

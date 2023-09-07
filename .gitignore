@@ -4,6 +4,9 @@ __pycache__/
 # VSCode
 .vscode/
 
+# Weights and bias
+wandb/
+
 # Backup data from the original paper
 data_paper/
 
