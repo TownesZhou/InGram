@@ -116,12 +116,12 @@ for epoch in pbar:
 
 		metrics = evaluate(my_model, valid, epoch, val_init_emb_ent, val_init_emb_rel, val_relation_triplets)
 
-		if not args.no_write:
-			torch.save({'model_state_dict': my_model.state_dict(), \
-						'optimizer_state_dict': optimizer.state_dict(), \
-						'inf_emb_ent': val_init_emb_ent, \
-						'inf_emb_rel': val_init_emb_rel}, \
-				f"{ckpt_path}/{file_format}_{epoch+1}.ckpt")
+		# if not args.no_write:
+		# 	torch.save({'model_state_dict': my_model.state_dict(), \
+		# 				'optimizer_state_dict': optimizer.state_dict(), \
+		# 				'inf_emb_ent': val_init_emb_ent, \
+		# 				'inf_emb_rel': val_init_emb_rel}, \
+		# 		f"{ckpt_path}/{file_format}_{epoch+1}.ckpt")
 		
 		# Save best checkpoint based on MRR. Best checkpoint is named best.ckpt
 		if metrics[BEST_METRIC_KEY] > best_val_mrr:

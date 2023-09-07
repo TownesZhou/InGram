@@ -52,7 +52,7 @@ See `test.py` for modification details.
 
 ## Early stop and save best model checkpoints during training
 
-During trainin, we monitor the `mrr_ent` metric (entity MRR) on the validation set and save the model checkpoint with the best `mrr_ent` metric. The best model checkpoint is named `best.ckpt` and is saved in the same folder as the other episodic model checkpoints.
+During trainin, we monitor the `mrr_ent` metric (entity MRR) on the validation set and __only__ save the model checkpoint with the best `mrr_ent` metric. The best model checkpoint is named `best.ckpt` and is saved in the same folder as the other episodic model checkpoints.
 
 We also stop training if the `mrr_ent` metric does not improve for 10 epochs.
 
