@@ -5,7 +5,7 @@ import random
 from model import InGram
 import torch
 import numpy as np
-from utils import get_rank, get_metrics
+from utils import get_rank, get_metrics, wandb_run_name
 from my_parser import parse
 from evaluation import evaluate
 from initialize import initialize
@@ -14,18 +14,28 @@ import wandb
 
 # TODO: integrate with Weights & Biases
 
+args = parse(test=True)
+
+assert args.data_name in os.listdir(args.data_path), f"{args.data_name} Not Found"
+
+# Initialize Weights & Biases logging, and log the arguments for this run
+run_config = vars(args)
+run_config["stage"] = "transform"
+wandb.init(mode="online" if args.wandb else "disabled",  # Turn on wandb logging only if --wandb is set
+		   project=args.wandb_project,
+		   entity=args.wandb_entity,
+		   job_type=args.wandb_job_type,
+		   config=run_config)
+wandb.run.name = wandb_run_name(args.run_hash, 'transform')
+
 OMP_NUM_THREADS=8
-torch.manual_seed(0)
-random.seed(0)
-np.random.seed(0)
+torch.manual_seed(args.seed)
+random.seed(args.seed)
+np.random.seed(args.seed)
 torch.autograd.set_detect_anomaly(True)
 torch.backends.cudnn.benchmark = True
 torch.set_num_threads(8)
 torch.cuda.empty_cache()
-
-args = parse(test=True)
-
-assert args.data_name in os.listdir(args.data_path), f"{args.data_name} Not Found"
 
 path = args.data_path + args.data_name + "/"
 test = TestNewData(path, data_type = "test")
@@ -73,4 +83,7 @@ test_msg = torch.tensor(test_msg).cuda()
 test_relation_triplets = torch.tensor(test_relation_triplets).cuda()
 test_emb_ent, test_emb_rel = my_model(test_init_emb_ent, test_init_emb_rel, test_msg, test_relation_triplets)
 
-evaluate(my_model, test, args.target_epoch-1, test_init_emb_ent, test_init_emb_rel, test_relation_triplets)
+metrics = evaluate(my_model, test, args.target_epoch-1, test_init_emb_ent, test_init_emb_rel, test_relation_triplets)
+
+# Log to Weights & Biases
+wandb.log(metrics)
