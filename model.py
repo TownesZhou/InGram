@@ -41,6 +41,10 @@ class InGramEntityLayer(nn.Module):
         ent_freq = torch.zeros((num_ent, )).cuda().index_add(dim = 0, index = tail_idxs, \
                                                              source = torch.ones_like(tail_idxs, dtype = torch.float).cuda()).unsqueeze(dim = 1)
 
+        # ent_freq may contain 0s, which causes NaNs in the output
+        # If there are any 0s, replace them with 1s
+        ent_freq[ent_freq == 0] = 1
+
         self_rel = torch.zeros((num_ent, self.dim_rel)).cuda().index_add(dim=0, index = tail_idxs, source = emb_rel[rel_idxs])/ent_freq
 
         # add self-loops

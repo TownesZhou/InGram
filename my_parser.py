@@ -6,6 +6,9 @@ def parse(test=False):
     parser.add_argument('--data_path', default = "./data/", type = str)
     parser.add_argument('--data_name', default = 'NL-100', type = str)
     parser.add_argument('--exp', default = 'exp', type = str)
+    # Add seed
+    parser.add_argument('--seed', default = 0, type = int)
+    
     parser.add_argument('-m', '--margin', default = 2, type = float)
     parser.add_argument('-lr', '--learning_rate', default=5e-4, type = float)
     parser.add_argument('-nle', '--num_layer_ent', default = 2, type = int)

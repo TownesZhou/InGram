@@ -1,7 +1,44 @@
 # Modified for Baseline Comparisons
 
-Modification list:
+## Evaluation metrics
 
+The experiments in the original paper evaluate the model performance against all negative head/tail entities in the graph. In our setting, we (1) additionally evaluate against negative relations and (2) evaluate only against 50 random negative samples. Specifically, we
+
+- for each positive triplet, randomly sample 50 negative head, 50 negative tails, and 50 negative relations,
+- aggregate the results for negative heads and negative tails as entity rankings, and
+- report the MR, MRR, Hits@1, Hits@3, and Hits@10 for both entity rankings and relation rankings.
+
+See `evaluation.py` for modification details.
+
+## Data split and data loader
+
+In the original paper, the validation triplets are taken from the test-time knowledge graph. We adapt it to our setting where the validation triplets are those sampled from the training graph. Hence, the data file `train.txt`, `valid.txt`, `msg.txt`, and `test.txt` are used in the following way:
+
+- During training, the model is trained solely on `train.txt` by making a self-supervised mask on these triplets.
+- During validation, `train.txt` is taken as the message/observation/input to the model, and `valid.txt` is taken as the supervision/target triplets to predict.
+- During test, `msg.txt` is taken as the message/observation/input to the model, and `test.txt` is taken as the supervision/target triplets to predict.
+
+Additionally, when readining triplets from file, separately the line by any whitespate via `.split()` instead of by tab via `.split('\t')`.
+
+See `dataset.py` for modification details.
+
+## Specify random seed
+
+Allow specify random seed of the experiment in the command line with the argument `--seed`. 
+
+See `my_parser.py` for modification details.
+
+## Fix divide-by-zero error which may cause NaN values
+
+Fix a divide-by-zero error in `InGramEntityLayer.forward()` which may cause NaN values in the outputs. Specifically, the `ent_freq` tensor may contain 0s which is then used as a divisor to compute `self_rel`. We fix this by replacing 0s in `ent_freq` with 1s.
+
+See `model.py` for modification details.
+
+## Fix numpy int type conversion error when computing metrics
+
+Replace `np.int` with built-in `int` to avoid type conversion error when computing metrics in `get_metrics()`.
+
+See `utils.py` for modification details.
 
 # InGram: Inductive Knowledge Graph Embedding via Relation Graphs
 This code is the official implementation of the following [paper](https://proceedings.mlr.press/v202/lee23c.html):

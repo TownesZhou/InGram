@@ -11,16 +11,19 @@ from evaluation import evaluate
 from initialize import initialize
 from my_parser import parse
 
+# TODO: Integrate with Weights & Bias
+
+args = parse()
+
 OMP_NUM_THREADS = 8
-torch.manual_seed(0)
-random.seed(0)
-np.random.seed(0)
+# Use random seed specified in the command line argument
+torch.manual_seed(args.seed)
+random.seed(args.seed)
+np.random.seed(args.seed)
 torch.autograd.set_detect_anomaly(True)
 torch.backends.cudnn.benchmark = True
 torch.set_num_threads(8)
 torch.cuda.empty_cache()
-
-args = parse()
 
 assert args.data_name in os.listdir(args.data_path), f"{args.data_name} Not Found"
 path = args.data_path + args.data_name + "/"
@@ -55,6 +58,11 @@ pbar = tqdm(range(epochs))
 
 total_loss = 0
 
+# Record best validation metrics and early-stop counter
+best_val_mrr = 0
+early_stop_counter = 0
+BEST_METRIC_KEY = 'mrr_ent'
+
 for epoch in pbar:
 	optimizer.zero_grad()
 	msg, sup = train.split_transductive(0.75)
@@ -81,7 +89,7 @@ for epoch in pbar:
 		val_init_emb_ent, val_init_emb_rel, val_relation_triplets = initialize(valid, valid.msg_triplets, \
 																				d_e, d_r, B)
 
-		evaluate(my_model, valid, epoch, val_init_emb_ent, val_init_emb_rel, val_relation_triplets)
+		metrics = evaluate(my_model, valid, epoch, val_init_emb_ent, val_init_emb_rel, val_relation_triplets)
 
 		if not args.no_write:
 			torch.save({'model_state_dict': my_model.state_dict(), \
@@ -89,5 +97,25 @@ for epoch in pbar:
 						'inf_emb_ent': val_init_emb_ent, \
 						'inf_emb_rel': val_init_emb_rel}, \
 				f"ckpt/{args.exp}/{args.data_name}/{file_format}_{epoch+1}.ckpt")
+		
+		# Save best checkpoint based on MRR. Best checkpoint is named best.ckpt
+		if metrics[BEST_METRIC_KEY] > best_val_mrr:
+			best_val_mrr = metrics[BEST_METRIC_KEY]
+			early_stop_counter = 0
+			if not args.no_write:
+				print(">>>>> New best checkpoint! <<<<<")
+				torch.save({'model_state_dict': my_model.state_dict(), \
+							'optimizer_state_dict': optimizer.state_dict(), \
+							'inf_emb_ent': val_init_emb_ent, \
+							'inf_emb_rel': val_init_emb_rel}, \
+					f"ckpt/{args.exp}/{args.data_name}/best.ckpt")
+		# If MRR does not improve, increment early-stop counter
+		else:
+			early_stop_counter += 1
+			print(f">>>>> No Improvement. Early stop counter: {early_stop_counter} <<<<<")
+			# If early-stop counter reaches 10, stop training
+			if early_stop_counter == 10:
+				print(">>>>> Early stop! <<<<<")
+				break
 
 		my_model.train()

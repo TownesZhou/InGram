@@ -24,7 +24,7 @@ class TrainData():
 		id2ent, id2rel, triplets = [], [], []
 		with open(path, 'r') as f:
 			for line in f.readlines():
-				h, r, t = line.strip().split('\t')
+				h, r, t = line.strip().split()
 				id2ent.append(h)
 				id2ent.append(t)
 				id2rel.append(r)
@@ -119,7 +119,7 @@ class TestNewData():
 		msg_file = "train.txt" if self.data_type == "valid" else "msg.txt"
 		with open(self.path + msg_file, 'r') as f:
 			for line in f.readlines():
-				h, r, t = line.strip().split('\t')
+				h, r, t = line.strip().split()
 				id2ent.append(h)
 				id2ent.append(t)
 				id2rel.append(r)
@@ -136,7 +136,7 @@ class TestNewData():
 
 		with open(self.path + self.data_type + ".txt", 'r') as f:
 			for line in f.readlines():
-				h, r, t = line.strip().split('\t')
+				h, r, t = line.strip().split()
 				sup_triplets.append((self.ent2id[h], self.rel2id[r], self.ent2id[t]))
 				assert (self.ent2id[h], self.rel2id[r], self.ent2id[t]) not in msg_triplets, \
 					(self.ent2id[h], self.rel2id[r], self.ent2id[t]) 
@@ -152,7 +152,7 @@ class TestNewData():
 		# 		continue
 		# 	with open(self.path + data_type + ".txt", 'r') as f:
 		# 		for line in f.readlines():
-		# 			h, r, t = line.strip().split('\t')
+		# 			h, r, t = line.strip().split()
 		# 			assert (self.ent2id[h], self.rel2id[r], self.ent2id[t]) not in msg_triplets, \
 		# 				(self.ent2id[h], self.rel2id[r], self.ent2id[t]) 
 		# 			total_triplets.append((h,r,t))	
