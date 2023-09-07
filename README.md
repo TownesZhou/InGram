@@ -22,6 +22,27 @@ test.py --best --run_hash <run_hash> --data_name DB2WD-15K-V1 --exp PediaTypes
 
 where <run_hash> is the hash of the hyperparameters of the previous training run. The hash is printed to the terminal when the training run is started.
 
+## Summary of hyperparameters
+
+We conducted hyperparameter search on the following hyperparameters:
+```
+margin: [1.0, 2.0]
+learning_rate: [0.0005, 0.001]
+num_layer_ent: [2, 3, 4]
+num_layer_rel: [1, 2, 3]
+```
+Values of the other hyperparameters are those used in the original paper and repo.
+
+For final baseline comparisons, we trained the models with the following hyperparameters:
+
+On PediaTypes version 1 all scenarios:
+```
+--margin 2.0 --learning_rate 0.001 --num_layer_ent 3 --num_layer_rel 4 --dimension_entity 32 --dimension_relation 32 --hidden_dimension_ratio_entity 8 --hidden_dimension_ratio_relation 4 --num_bin 10 --num_epoch 10000 --validation_epoch 200 --num_head 8 --num_neg 10
+```
+
+
+# Change Log
+
 ## Evaluation metrics
 
 The experiments in the original paper evaluate the model performance against all negative head/tail entities in the graph. In our setting, we (1) additionally evaluate against negative relations and (2) evaluate only against 50 random negative samples. Specifically, we
