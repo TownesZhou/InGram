@@ -6,6 +6,7 @@ __pycache__/
 
 # Weights and bias
 wandb/
+sweep/
 
 # Backup data from the original paper
 data_paper/
@@ -17,6 +18,9 @@ ckpt_paper/
 # Slurm related scripts and logs
 debug_slurm.sh
 debug_slurm.txt
+sweep_slurm.sh
+sweep_slurm.txt
+sweep-slurm.txt
 
 # Run command examples
 commands.txt
