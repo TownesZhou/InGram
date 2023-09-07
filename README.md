@@ -1,5 +1,27 @@
 # Modified for Baseline Comparisons
 
+## TL;DR - Modified example train and test command
+
+To train a model on the PediaTypes `DB2WD` dataset with logging to terminal, run
+
+```shell
+Python train.py --data_path data/PediaTypes/ --data_name DB2WD-15K-V1 --exp PediaTypes --seed 42
+```
+
+To train a model on the same dataset but log to Weights & Biases, run
+
+```shell
+Python train.py --data_path data/PediaTypes/ --data_name DB2WD-15K-V1 --exp PediaTypes --seed 42 --wandb --wandb-project <your wandb project name> --wandb-entity <your account/team name> --wandb-job-type <wandb job type>
+```
+
+To test the best checkpoint saved from the above training run, which should be located in `ckpt/PediaTypes/DB2WD-15K-V1/<run_hash>`, run
+
+```shell
+test.py --best --run_hash <run_hash> --data_name DB2WD-15K-V1 --exp PediaTypes
+```
+
+where <run_hash> is the hash of the hyperparameters of the previous training run. The hash is printed to the terminal when the training run is started.
+
 ## Evaluation metrics
 
 The experiments in the original paper evaluate the model performance against all negative head/tail entities in the graph. In our setting, we (1) additionally evaluate against negative relations and (2) evaluate only against 50 random negative samples. Specifically, we
@@ -22,6 +44,32 @@ Additionally, when readining triplets from file, separately the line by any whit
 
 See `dataset.py` for modification details.
 
+## Re-initialize random entity and relation embeddings during test
+
+Since in our setting, the validation set is sampled from the training graph instead of test graph (as in the original paper), we re-initialize the entity and relation embeddings before running the model on the test set. We use the same `initialize()` method from `initialize.py`.
+
+See `test.py` for modification details.
+
+## Early stop and save best model checkpoints during training
+
+During trainin, we monitor the `mrr_ent` metric (entity MRR) on the validation set and save the model checkpoint with the best `mrr_ent` metric. The best model checkpoint is named `best.ckpt` and is saved in the same folder as the other episodic model checkpoints.
+
+We also stop training if the `mrr_ent` metric does not improve for 10 epochs.
+
+See `train.py` for modification details.
+
+## Enable loading the best model checkpoint for testing
+
+We enable loading the `best.ckpt` model checkpoint of any given experiments for testing. To do so, we modify the command line arguments so now you should specify `--best` together with `--run-hash`, `--data_name`, and `--exp` to load the best model checkpoint of the given experiment.
+
+See `test.py` for modification details.
+
+## Specify random seed
+
+Allow specify random seed of the experiment in the command line with the argument `--seed`. 
+
+See `my_parser.py` for modification details.
+
 ## Use Weights & Biases for logging
 
 Use Weights & Biases for logging.
@@ -39,18 +87,6 @@ Now a hash is created for each run using the hyperparameters specified in the co
 where `[experiment_name]` is the experiment name specified by `--exp` argument, `[dataset_name]` is the name of the dataset specified by `--data_name` argument, and `[hash]` is the hash of the hyperparameters. The hash is created using the `hashlib` library and is the first 8 characters of the SHA-256 hash of the hyperparameters.
 
 See `train.py` for modification details.
-
-## Early stop and save best model checkpoints during training
-
-During trainin, we monitor the `mrr_ent` metric (entity MRR) on the validation set and save the model checkpoint with the best `mrr_ent` metric. The best model checkpoint is named `best.ckpt` and is saved in the same folder as the other episodic model checkpoints.
-
-We also stop training if the `mrr_ent` metric does not improve for 10 epochs.
-
-## Specify random seed
-
-Allow specify random seed of the experiment in the command line with the argument `--seed`. 
-
-See `my_parser.py` for modification details.
 
 ## Fix divide-by-zero error which may cause NaN values
 

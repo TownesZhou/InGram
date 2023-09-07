@@ -8,7 +8,11 @@ import numpy as np
 from utils import get_rank, get_metrics
 from my_parser import parse
 from evaluation import evaluate
+from initialize import initialize
 import os
+import wandb
+
+# TODO: integrate with Weights & Biases
 
 OMP_NUM_THREADS=8
 torch.manual_seed(0)
@@ -45,24 +49,23 @@ my_model = InGram(dim_ent = d_e, hid_dim_ratio_ent = hdr_e, dim_rel = d_r, hid_d
 				num_head = args.num_head)
 my_model = my_model.cuda()
 
-if not args.best:
-	my_model.load_state_dict(torch.load(f"ckpt/{args.exp}/{args.data_name}/{file_format}_{args.target_epoch}.ckpt")["model_state_dict"])
 
+if not args.best:
+	ckpt_path = f"ckpt/{args.exp}/{args.data_name}/{file_format}_{args.target_epoch}.ckpt"
 else:
-	my_model.load_state_dict(torch.load(f"ckpt/best/{args.data_name}/best.ckpt")["model_state_dict"])
+	ckpt_path = f"ckpt/{args.exp}/{args.data_name}/{args.run_hash}/best.ckpt"
+my_model.load_state_dict(torch.load(ckpt_path)["model_state_dict"])
 
 
 print("Test")
 my_model.eval()
 test_msg = test.msg_triplets
 test_sup = test.sup_triplets
-test_relation_triplets = generate_relation_triplets(test_msg, test.num_ent, test.num_rel, B)
-if not args.best:
-	test_init_emb_ent = torch.load(f"ckpt/{args.exp}/{args.data_name}/{file_format}_{args.target_epoch}.ckpt")["inf_emb_ent"]
-	test_init_emb_rel = torch.load(f"ckpt/{args.exp}/{args.data_name}/{file_format}_{args.target_epoch}.ckpt")["inf_emb_rel"]
-else:
-	test_init_emb_ent = torch.load(f"ckpt/best/{args.data_name}/best.ckpt")["inf_emb_ent"]
-	test_init_emb_rel = torch.load(f"ckpt/best/{args.data_name}/best.ckpt")["inf_emb_rel"]
+# test_relation_triplets = generate_relation_triplets(test_msg, test.num_ent, test.num_rel, B)
+# test_init_emb_ent = torch.load(ckpt_path)["inf_emb_ent"]
+# test_init_emb_rel = torch.load(ckpt_path)["inf_emb_rel"]
+### Re-initialize new initial embeddings for test ###
+test_init_emb_ent, test_init_emb_rel, test_relation_triplets = initialize(test, test_msg, d_e, d_r, B)
 
 test_sup = torch.tensor(test_sup).cuda()
 test_msg = torch.tensor(test_msg).cuda()

@@ -21,6 +21,7 @@ def parse(test=False):
     parser.add_argument('-e', '--num_epoch', default = 10000, type = int)
     if test:
         parser.add_argument('--target_epoch', default = 6600, type = int)
+        parser.add_argument('--run_hash', default = "", type = str)
     parser.add_argument('-v', '--validation_epoch', default = 200, type = int)
     parser.add_argument('--num_head', default = 8, type = int)
     parser.add_argument('--num_neg', default = 10, type = int)
@@ -37,13 +38,17 @@ def parse(test=False):
     args = parser.parse_args()
 
     if test and args.best:
+        # Check that target hash is specified
+        assert args.run_hash != "", "Target run hash must be specified by --run_hash when --best is set"
         remaining_args = []
-        with open(f"./ckpt/best/{args.data_name}/config.json") as f:
+        with open(f"./ckpt/{args.exp}/{args.data_name}/{args.run_hash}/config.json") as f:
             configs = json.load(f)
         for key in vars(args).keys():
             if key in configs:
                 vars(args)[key] = configs[key]
             else:
                 remaining_args.append(key)
+        # Reset args.best to True
+        args.best = True
 
     return args
