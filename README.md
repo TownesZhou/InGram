@@ -74,7 +74,7 @@ See `my_parser.py` for modification details.
 
 Use Weights & Biases for logging.
 
-See `train.py` for modification details and `utils.py` for additional utility functions.
+See `train.py` and `test.py` for modification details and `utils.py` for additional utility functions.
 
 ## Modify checkpoint saving directory
 
