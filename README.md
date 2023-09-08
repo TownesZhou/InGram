@@ -37,7 +37,7 @@ For final baseline comparisons, we trained the models with the following hyperpa
 
 On PediaTypes version 1 all scenarios:
 ```
---margin 2.0 --learning_rate 0.001 --num_layer_ent 3 --num_layer_rel 4 --dimension_entity 32 --dimension_relation 32 --hidden_dimension_ratio_entity 8 --hidden_dimension_ratio_relation 4 --num_bin 10 --num_epoch 10000 --validation_epoch 200 --num_head 8 --num_neg 10
+--margin 2.0 --learning_rate 0.001 --num_layer_ent 4 --num_layer_rel 3 --dimension_entity 32 --dimension_relation 32 --hidden_dimension_ratio_entity 8 --hidden_dimension_ratio_relation 4 --num_bin 10 --num_epoch 10000 --validation_epoch 200 --num_head 8 --num_neg 10
 ```
 
 
