@@ -15,6 +15,7 @@ def evaluate(my_model, target, epoch, init_emb_ent, init_emb_rel, relation_tripl
 
         ent_ranks = []
         rel_ranks = []
+        dual_ranks = []
         for triplet in tqdm(sup):
             
             triplet = triplet.unsqueeze(dim = 0)
@@ -80,25 +81,61 @@ def evaluate(my_model, target, epoch, init_emb_ent, init_emb_rel, relation_tripl
             rel_scores[rel_corrupt[:,1]] = rel_scores_51
             rel_rank = get_rank(triplet, rel_scores, rel_filters, target = 1)
 
+            ### MODIFY: Dual sampling loss, 12 negative heads + 12 negative tails + 26 negative relations ###
+            # Use the contents in head_corrupt, tail_corrupt, and rel_corrupt to create the 50 negative triplets
+            # The first 12 are negative heads, the next 12 are negative tails, and the last 26 are negative relations
+            # Compute the rank against first 12 negative heads
+            head_corrupt_13 = head_corrupt[:13]
+            head_scores_13 = head_scores_51[:13]
+            head_scores_dual = torch.ones(target.num_ent).cuda() * (head_scores_13[0] - 1)
+            head_scores_dual[head_corrupt_13[:,0]] = head_scores_13
+            head_rank_13 = get_rank(triplet, head_scores_dual, head_filters, target = 0)
+            head_rank_dual = head_rank_13 - 1   # This counts how many negative heads are ranked higher than the original head
+            # Compute the rank against next 12 negative tails
+            tail_corrupt_13 = tail_corrupt[:13]
+            tail_scores_13 = tail_scores_51[:13]
+            tail_scores_dual = torch.ones(target.num_ent).cuda() * (tail_scores_13[0] - 1)
+            tail_scores_dual[tail_corrupt_13[:,2]] = tail_scores_13
+            tail_rank_13 = get_rank(triplet, tail_scores_dual, tail_filters, target = 2)
+            tail_rank_dual = tail_rank_13 - 1   # This counts how many negative tails are ranked higher than the original tail
+            # Compute the rank against last 26 negative relations
+            rel_corrupt_27 = rel_corrupt[:27]
+            rel_scores_27 = rel_scores_51[:27]
+            rel_scores_dual = torch.ones(target.num_rel).cuda() * (rel_scores_27[0] - 1)
+            rel_scores_dual[rel_corrupt_27[:,1]] = rel_scores_27
+            rel_rank_27 = get_rank(triplet, rel_scores_dual, rel_filters, target = 1)
+            rel_rank_dual = rel_rank_27 - 1   # This counts how many negative relations are ranked higher than the original relation
+            # Compute the final mixed rank
+            dual_rank = head_rank_dual + tail_rank_dual + rel_rank_dual + 1
+
             ent_ranks.append(head_rank)
             ent_ranks.append(tail_rank)
             rel_ranks.append(rel_rank)
+            dual_ranks.append(dual_rank)
 
-        print("--------LP--------")
+        print("--------Entiti--------")
         mr_ent, mrr_ent, hit10_ent, hit3_ent, hit1_ent = get_metrics(ent_ranks)
         mr_rel, mrr_rel, hit10_rel, hit3_rel, hit1_rel = get_metrics(rel_ranks)
+        mr_dual, mrr_dual, hit10_dual, hit3_dual, hit1_dual = get_metrics(dual_ranks)
         print(f"MR_ENT: {mr_ent:.1f}")
         print(f"MRR_ENT: {mrr_ent:.3f}")
         print(f"Hits@10_ENT: {hit10_ent:.3f}")
         print(f"Hits@1_ENT: {hit1_ent:.3f}")
-        print("--------")
+        print("--------Relation--------")
         print(f"MR_REL: {mr_rel:.1f}")
         print(f"MRR_REL: {mrr_rel:.3f}")
         print(f"Hits@10_REL: {hit10_rel:.3f}")
         print(f"Hits@1_REL: {hit1_rel:.3f}")
+        print("--------Dual--------")
+        print(f"MR_DUAL: {mr_dual:.1f}")
+        print(f"MRR_DUAL: {mrr_dual:.3f}")
+        print(f"Hits@10_DUAL: {hit10_dual:.3f}")
+        print(f"Hits@1_DUAL: {hit1_dual:.3f}")
 
         # Return the metrics in dict
         return {
             'mr_ent': mr_ent, 'mrr_ent': mrr_ent, 'hit10_ent': hit10_ent, 'hit3_ent': hit3_ent, 'hit1_ent': hit1_ent,
-            'mr_rel': mr_rel, 'mrr_rel': mrr_rel, 'hit10_rel': hit10_rel, 'hit3_rel': hit3_rel, 'hit1_rel': hit1_rel}
+            'mr_rel': mr_rel, 'mrr_rel': mrr_rel, 'hit10_rel': hit10_rel, 'hit3_rel': hit3_rel, 'hit1_rel': hit1_rel,
+            'mr_dual': mr_dual, 'mrr_dual': mrr_dual, 'hit10_dual': hit10_dual, 'hit3_dual': hit3_dual, 'hit1_dual': hit1_dual
+        }
     

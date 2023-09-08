@@ -57,6 +57,8 @@ The experiments in the original paper evaluate the model performance against all
 - aggregate the results for negative heads and negative tails as entity rankings, and
 - report the MR, MRR, Hits@1, Hits@3, and Hits@10 for both entity rankings and relation rankings.
 
+We also report a mixed metric, where each positive triplet is ranked against 12 negative heads, 12 negative tails, and 26 negative relations. These negative heads, tails, and relations are taken from thosed sampled above.
+
 See `evaluation.py` for modification details.
 
 ## Data split and data loader
