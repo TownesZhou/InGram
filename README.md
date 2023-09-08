@@ -22,6 +22,12 @@ test.py --best --run_hash <run_hash> --data_name DB2WD-15K-V1 --exp PediaTypes
 
 where <run_hash> is the hash of the hyperparameters of the previous training run. The hash is printed to the terminal when the training run is started.
 
+Or alternatively, you can specify data_name and run_hash together using the `--data_name_run_hash` argument:
+
+```shell
+test.py --best --data_name_run_hash DB2WD-15K-V1/<run_hash> --exp PediaTypes
+```
+
 ## Summary of hyperparameters
 
 We conducted hyperparameter search on the following hyperparameters:

@@ -22,6 +22,7 @@ def parse(test=False):
     if test:
         parser.add_argument('--target_epoch', default = 6600, type = int)
         parser.add_argument('--run_hash', default = "", type = str)
+        parser.add_argument('--data_name_run_hash', default = "", type = str)  # Supercedes both --data_name and --run_hash
     parser.add_argument('-v', '--validation_epoch', default = 200, type = int)
     parser.add_argument('--num_head', default = 8, type = int)
     parser.add_argument('--num_neg', default = 10, type = int)
@@ -39,7 +40,14 @@ def parse(test=False):
 
     if test and args.best:
         # Check that target hash is specified
-        assert args.run_hash != "", "Target run hash must be specified by --run_hash when --best is set"
+        assert args.run_hash != "" or args.data_name_run_hash != "", \
+            "Target run hash must be specified by --run_hash when --best is set"
+        # If data_name_run_hash is specified, use it instead of data_name and run_hash
+        if args.data_name_run_hash != "":
+            args.data_name, args.run_hash = args.data_name_run_hash.split("/")
+            ### DEBUG ###
+            print(f"Specified data_name_run_hash = {args.data_name_run_hash}")
+            print(f"Using data_name = {args.data_name}, run_hash = {args.run_hash}")
         remaining_args = []
         with open(f"./ckpt/{args.exp}/{args.data_name}/{args.run_hash}/config.json") as f:
             configs = json.load(f)
