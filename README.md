@@ -149,6 +149,13 @@ Replace `np.int` with built-in `int` to avoid type conversion error when computi
 
 See `utils.py` for modification details.
 
+## Dataset modification
+
+### WikiTopics-MT
+
+- Deleted `Q7569 P1552 Q276258` from mt3 training split `valid.txt`.
+- Deleted `Q6921465 P3137 Q8524598` from mt4-location-v2 test split `test.txt`.`
+
 # InGram: Inductive Knowledge Graph Embedding via Relation Graphs
 This code is the official implementation of the following [paper](https://proceedings.mlr.press/v202/lee23c.html):
 
