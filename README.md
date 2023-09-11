@@ -67,6 +67,11 @@ On WikiTopics-MT4 (training split):
 --margin 2.0 --learning_rate 0.0005 --num_layer_ent 4 --num_layer_rel 3 --dimension_entity 32 --dimension_relation 32 --hidden_dimension_ratio_entity 8 --hidden_dimension_ratio_relation 4 --num_bin 10 --num_epoch 10000 --validation_epoch 200 --num_head 8 --num_neg 10
 ```
 
+On FBNELL (training split):
+```
+--margin 2.0 --learning_rate 0.0005 --num_layer_ent 2 --num_layer_rel 2 --dimension_entity 32 --dimension_relation 32 --hidden_dimension_ratio_entity 8 --hidden_dimension_ratio_relation 4 --num_bin 10 --num_epoch 10000 --validation_epoch 200 --num_head 8 --num_neg 10
+```
+
 # Change Log
 
 ## Evaluation metrics
@@ -154,7 +159,19 @@ See `utils.py` for modification details.
 ### WikiTopics-MT
 
 - Deleted `Q7569 P1552 Q276258` from mt3 training split `valid.txt`.
-- Deleted `Q6921465 P3137 Q8524598` from mt4-location-v2 test split `test.txt`.`
+
+### FBNELL
+
+- Deleted the following triplets from training split `valid.txt`:
+
+```
+concept:agriculturalproduct:herbs concept:agriculturalproductgrowninlandscapefeatures concept:landscapefeatures:islands
+concept:beverage:coffee concept:agriculturalproductgrowninlandscapefeatures concept:landscapefeatures:islands
+concept:beverage:new concept:atlocation concept:landscapefeatures:islands
+concept:agriculturalproduct:pigs concept:animalistypeofanimal concept:mammal:social_animals
+concept:animal:animals002 concept:animalistypeofanimal concept:reptile:small_birds
+(and others, see notebooks/clean_data.ipynb)
+```
 
 # InGram: Inductive Knowledge Graph Embedding via Relation Graphs
 This code is the official implementation of the following [paper](https://proceedings.mlr.press/v202/lee23c.html):
