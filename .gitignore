@@ -27,3 +27,7 @@ list_runs.sh
 
 # Run command examples
 commands.txt
+
+# Notebook data
+notebooks/raw/
+notebooks/processed/
