@@ -23,7 +23,9 @@ def generate_neg(triplets, num_ent, num_neg = 1):
 def get_rank(triplet, scores, filters, target = 0):
 	thres = scores[triplet[0,target]].item()
 	scores[filters] = thres - 1
-	rank = (scores > thres).sum() + (scores == thres).sum()//2 + 1
+	# rank = (scores > thres).sum() + (scores == thres).sum()//2 + 1
+	# Compute the worst case rank when breaking ties, instead of compute an average
+	rank = (scores >= thres).sum() + 1
 	return rank.item()
 
 def get_metrics(rank):

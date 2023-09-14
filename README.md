@@ -84,7 +84,9 @@ The experiments in the original paper evaluate the model performance against all
 
 We also report a mixed metric, where each positive triplet is ranked against 12 negative heads, 12 negative tails, and 26 negative relations. These negative heads, tails, and relations are taken from thosed sampled above.
 
-See `evaluation.py` for modification details.
+In addition, we consider the worst-case scenario when breaking ties. That is, when there are multiple negative triplets with the same score as the positive one, then our positive triplet is **ranked after all of those negative ones**. This is in contrast to the original paper where the average rank of the positive triplet against the negative ones with the same score is taken.
+
+See `evaluation.py` and `utils.py` for modification details.
 
 ## Data split and data loader
 
