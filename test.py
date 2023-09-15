@@ -7,7 +7,7 @@ import torch
 import numpy as np
 from utils import get_rank, get_metrics, wandb_run_name
 from my_parser import parse
-from evaluation import evaluate
+from evaluation import evaluate_mc
 from initialize import initialize
 import os
 import wandb
@@ -74,16 +74,22 @@ test_sup = test.sup_triplets
 # test_relation_triplets = generate_relation_triplets(test_msg, test.num_ent, test.num_rel, B)
 # test_init_emb_ent = torch.load(ckpt_path)["inf_emb_ent"]
 # test_init_emb_rel = torch.load(ckpt_path)["inf_emb_rel"]
-### Re-initialize new initial embeddings for test ###
-test_init_emb_ent, test_init_emb_rel, test_relation_triplets = initialize(test, test_msg, d_e, d_r, B)
+
+# Obtain multiple Monte Carlo samples of the initial random embeddings
+test_init_emb_ent_samples, test_init_emb_rel_samples, test_relation_triplets_samples = [], [], []
+for _ in range(args.mc):
+	test_init_emb_ent, test_init_emb_rel, test_relation_triplets = initialize(test, test_msg, d_e, d_r, B)
+	test_relation_triplets = torch.tensor(test_relation_triplets).cuda()
+	test_init_emb_ent_samples.append(test_init_emb_ent)
+	test_init_emb_rel_samples.append(test_init_emb_rel)
+	test_relation_triplets_samples.append(test_relation_triplets)
 
 test_sup = torch.tensor(test_sup).cuda()
 test_msg = torch.tensor(test_msg).cuda()
 
-test_relation_triplets = torch.tensor(test_relation_triplets).cuda()
-test_emb_ent, test_emb_rel = my_model(test_init_emb_ent, test_init_emb_rel, test_msg, test_relation_triplets)
-
-metrics = evaluate(my_model, test, args.target_epoch-1, test_init_emb_ent, test_init_emb_rel, test_relation_triplets)
+metrics = evaluate_mc(
+	my_model, test, 
+	test_init_emb_ent_samples, test_init_emb_rel_samples, test_relation_triplets_samples)
 
 # Log to Weights & Biases
 wandb.log(metrics)

@@ -20,6 +20,7 @@ def parse(test=False):
     parser.add_argument('-b', '--num_bin', default = 10, type = int)
     parser.add_argument('-e', '--num_epoch', default = 10000, type = int)
     if test:
+        parser.add_argument('--mc', default=1, type=int, help="Number of Monte Carlo samples")
         parser.add_argument('--target_epoch', default = 6600, type = int)
         parser.add_argument('--run_hash', default = "", type = str)
         parser.add_argument('--data_name_run_hash', default = "", type = str)  # Supercedes both --data_name and --run_hash
