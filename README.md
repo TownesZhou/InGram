@@ -88,6 +88,12 @@ In addition, we consider the worst-case scenario when breaking ties. That is, wh
 
 See `evaluation.py` and `utils.py` for modification details.
 
+## Monte Carlo sampling of triplet scores
+
+In addition to the original implementation that performs a single forward pass to compute the triplet scores, we also implement Monte Carlo sampling of triplet scores. Specifically, we first draw `mc` samples of the initial entity and relation embeddings, then perform `mc` forward passes to compute the triplet scores. The final triplet score is the average of the `mc` scores. This process is theoretically more sound since it is in line with the theory of Double Equivariance (See: https://arxiv.org/abs/2302.01313), where the output triplet scores of the InGram model given a random initial entity and relation embeddings should be considered as a sample from the structural representation of the triplet that is double equivariant. In practice, we also observe that this procedure gives significantly better results with much less variance. 
+
+See `my_parser.py` for the additional argument `mc` and `evaluation.py` and `text.py` for the implementation of the Monte Carlo procedure. 
+
 ## Data split and data loader
 
 In the original paper, the validation triplets are taken from the test-time knowledge graph. We adapt it to our setting where the validation triplets are those sampled from the training graph. Hence, the data file `train.txt`, `valid.txt`, `msg.txt`, and `test.txt` are used in the following way:

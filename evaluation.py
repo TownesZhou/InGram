@@ -5,7 +5,9 @@ from tqdm import tqdm
 
 def evaluate_triplet(triplet, target, my_model, emb_ent, emb_rel):
     """
-    Evaluate a the ranks of a single triplet against negative samples
+    Evaluate a the ranks of a single triplet against negative samples.
+
+    Also allow multiple entity and relation embeddings to be passed in as Monte Carlo samples.
     """
     triplet = triplet.unsqueeze(dim = 0)
 
@@ -17,8 +19,11 @@ def evaluate_triplet(triplet, target, my_model, emb_ent, emb_rel):
     neg_heads_all = torch.tensor(list(set(range(target.num_ent)) - set(head_filters)))
     neg_heads_sampled_ids = torch.randint(low=0, high = len(neg_heads_all)-1, size = (50,))
     head_corrupt[1:,0] = neg_heads_all[neg_heads_sampled_ids]
-    # Compute the score            
-    head_scores_51 = my_model.score(emb_ent, emb_rel, head_corrupt)
+    # Compute the score. Compute multiple scores and then average if emb_ent and emb_rel are lists
+    if isinstance(emb_ent, list):
+        head_scores_51 = torch.stack([my_model.score(ee, er, head_corrupt) for ee, er in zip(emb_ent, emb_rel)]).mean(dim = 0)
+    else:
+        head_scores_51 = my_model.score(emb_ent, emb_rel, head_corrupt)
     
     # The original head_scores has score for every head, and get_rank() can only work with that
     # So to work around this, create a head_scores tensor with the same length as the number of entities
@@ -35,7 +40,11 @@ def evaluate_triplet(triplet, target, my_model, emb_ent, emb_rel):
     neg_tails_sampled_ids = torch.randint(low=0, high = len(neg_tails_all)-1, size = (50,))
     tail_corrupt[1:,2] = neg_tails_all[neg_tails_sampled_ids]
 
-    tail_scores_51 = my_model.score(emb_ent, emb_rel, tail_corrupt)
+    # Compute the score. Compute multiple scores and then average if emb_ent and emb_rel are lists
+    if isinstance(emb_ent, list):
+        tail_scores_51 = torch.stack([my_model.score(ee, er, tail_corrupt) for ee, er in zip(emb_ent, emb_rel)]).mean(dim = 0)
+    else:
+        tail_scores_51 = my_model.score(emb_ent, emb_rel, tail_corrupt)
 
     tail_scores = torch.ones(target.num_ent).cuda() * (tail_scores_51[0] - 1)
     tail_scores[tail_corrupt[:,2]] = tail_scores_51
@@ -48,7 +57,11 @@ def evaluate_triplet(triplet, target, my_model, emb_ent, emb_rel):
     neg_rels_sampled_ids = torch.randint(low=0, high = len(neg_rels_all)-1, size = (50,))
     rel_corrupt[1:,1] = neg_rels_all[neg_rels_sampled_ids]
 
-    rel_scores_51 = my_model.score(emb_ent, emb_rel, rel_corrupt)
+    # Compute the score. Compute multiple scores and then average if emb_ent and emb_rel are lists
+    if isinstance(emb_ent, list):
+        rel_scores_51 = torch.stack([my_model.score(ee, er, rel_corrupt) for ee, er in zip(emb_ent, emb_rel)]).mean(dim = 0)
+    else:
+        rel_scores_51 = my_model.score(emb_ent, emb_rel, rel_corrupt)
 
     rel_scores = torch.ones(target.num_rel).cuda() * (rel_scores_51[0] - 1)
     rel_scores[rel_corrupt[:,1]] = rel_scores_51
@@ -149,15 +162,12 @@ def evaluate_mc(my_model, target, init_emb_ent_samples, init_emb_rel_samples, re
             emb_ent, emb_rel = my_model(init_emb_ent, init_emb_rel, msg, relation_triplets)
             emb_ent_samples.append(emb_ent)
             emb_rel_samples.append(emb_rel)
-        # Average the entity and relation embeddings across the Monte Carlo samples
-        emb_ent = torch.stack(emb_ent_samples).mean(dim = 0)
-        emb_rel = torch.stack(emb_rel_samples).mean(dim = 0)
 
         ent_ranks = []
         rel_ranks = []
         dual_ranks = []
         for triplet in tqdm(sup):
-            head_rank, tail_rank, rel_rank, dual_rank = evaluate_triplet(triplet, target, my_model, emb_ent, emb_rel)
+            head_rank, tail_rank, rel_rank, dual_rank = evaluate_triplet(triplet, target, my_model, emb_ent_samples, emb_rel_samples)
 
             ent_ranks.append(head_rank)
             ent_ranks.append(tail_rank)
