@@ -17,6 +17,9 @@ import wandb
 args = parse(test=True)
 
 assert args.data_name in os.listdir(args.data_path), f"{args.data_name} Not Found"
+# If alt-test-data is specified, check that it exists
+if args.alt_test_data != "":
+	assert args.alt_test_data in os.listdir(args.data_path), f"{args.alt_test_data} Not Found"
 
 # Initialize Weights & Biases logging, and log the arguments for this run
 run_config = vars(args)
@@ -37,7 +40,11 @@ torch.backends.cudnn.benchmark = True
 torch.set_num_threads(8)
 torch.cuda.empty_cache()
 
-path = args.data_path + args.data_name + "/"
+# If alt-test-data is specified, use it instead of the default test data
+if args.alt_test_data != "":
+	path = args.data_path + args.alt_test_data + "/"
+else:
+	path = args.data_path + args.data_name + "/"
 test = TestNewData(path, data_type = "test")
 
 if not args.best:

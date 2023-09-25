@@ -24,6 +24,7 @@ def parse(test=False):
         parser.add_argument('--target_epoch', default = 6600, type = int)
         parser.add_argument('--run_hash', default = "", type = str)
         parser.add_argument('--data_name_run_hash', default = "", type = str)  # Supercedes both --data_name and --run_hash
+        parser.add_argument('--alt-test-data', default = "", type = str, help="Alternative test data to use")
     parser.add_argument('-v', '--validation_epoch', default = 200, type = int)
     parser.add_argument('--num_head', default = 8, type = int)
     parser.add_argument('--num_neg', default = 10, type = int)
