@@ -137,6 +137,11 @@ class TestNewData():
 		with open(self.path + self.data_type + ".txt", 'r') as f:
 			for line in f.readlines():
 				h, r, t = line.strip().split()
+				# Check that the head, relation, and tail are mentioned in the message set
+				# If not, skip this triplet
+				if h not in self.ent2id or t not in self.ent2id or r not in self.rel2id:
+					print(f"Warning: triplet {(h, r, t)} not in message set. Discarding...")
+					continue
 				sup_triplets.append((self.ent2id[h], self.rel2id[r], self.ent2id[t]))
 				assert (self.ent2id[h], self.rel2id[r], self.ent2id[t]) not in msg_triplets, \
 					(self.ent2id[h], self.rel2id[r], self.ent2id[t]) 
