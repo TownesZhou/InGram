@@ -120,9 +120,9 @@ def evaluate(my_model, target, epoch, init_emb_ent, init_emb_rel, relation_tripl
             dual_ranks.append(dual_rank)
 
         print("--------Entiti--------")
-        mr_ent, mrr_ent, hit10_ent, hit3_ent, hit1_ent = get_metrics(ent_ranks)
-        mr_rel, mrr_rel, hit10_rel, hit3_rel, hit1_rel = get_metrics(rel_ranks)
-        mr_dual, mrr_dual, hit10_dual, hit3_dual, hit1_dual = get_metrics(dual_ranks)
+        mr_ent, mrr_ent, hit10_ent, hit5_ent, hit4_ent, hit3_ent, hit2_ent, hit1_ent = get_metrics(ent_ranks)
+        mr_rel, mrr_rel, hit10_rel, hit5_rel, hit4_rel, hit3_rel, hit2_rel, hit1_rel = get_metrics(rel_ranks)
+        mr_dual, mrr_dual, hit10_dual, hit5_dual, hit4_rel, hit3_dual, hit2_rel, hit1_dual = get_metrics(dual_ranks)
         print(f"MR_ENT: {mr_ent:.1f}")
         print(f"MRR_ENT: {mrr_ent:.3f}")
         print(f"Hits@10_ENT: {hit10_ent:.3f}")
@@ -175,9 +175,9 @@ def evaluate_mc(my_model, target, init_emb_ent_samples, init_emb_rel_samples, re
             dual_ranks.append(dual_rank)
 
         print("--------Entiti--------")
-        mr_ent, mrr_ent, hit10_ent, hit3_ent, hit1_ent = get_metrics(ent_ranks)
-        mr_rel, mrr_rel, hit10_rel, hit3_rel, hit1_rel = get_metrics(rel_ranks)
-        mr_dual, mrr_dual, hit10_dual, hit3_dual, hit1_dual = get_metrics(dual_ranks)
+        mr_ent, mrr_ent, hit10_ent, hit5_ent, hit4_ent, hit3_ent, hit2_ent, hit1_ent = get_metrics(ent_ranks)
+        mr_rel, mrr_rel, hit10_rel, hit5_rel, hit4_rel, hit3_rel, hit2_rel, hit1_rel = get_metrics(rel_ranks)
+        mr_dual, mrr_dual, hit10_dual, hit5_dual, hit4_rel, hit3_dual, hit2_rel, hit1_dual = get_metrics(dual_ranks)
         print(f"MR_ENT: {mr_ent:.1f}")
         print(f"MRR_ENT: {mrr_ent:.3f}")
         print(f"Hits@10_ENT: {hit10_ent:.3f}")
@@ -195,7 +195,9 @@ def evaluate_mc(my_model, target, init_emb_ent_samples, init_emb_rel_samples, re
 
         # Return the metrics in dict
         return {
-            'mr_ent': mr_ent, 'mrr_ent': mrr_ent, 'hit10_ent': hit10_ent, 'hit3_ent': hit3_ent, 'hit1_ent': hit1_ent,
-            'mr_rel': mr_rel, 'mrr_rel': mrr_rel, 'hit10_rel': hit10_rel, 'hit3_rel': hit3_rel, 'hit1_rel': hit1_rel,
-            'mr_dual': mr_dual, 'mrr_dual': mrr_dual, 'hit10_dual': hit10_dual, 'hit3_dual': hit3_dual, 'hit1_dual': hit1_dual
+            'mr_ent': mr_ent, 'mrr_ent': mrr_ent, 'hit10_ent': hit10_ent, 'hit5_ent': hit5_ent, 
+            'hit4_ent': hit4_ent, 'hit3_ent': hit3_ent, 'hit2_ent': hit2_ent, 'hit1_ent': hit1_ent,
+            'mr_rel': mr_rel, 'mrr_rel': mrr_rel, 'hit10_rel': hit10_rel, 'hit5_rel': hit5_rel, 
+            'hit4_rel': hit4_rel, 'hit3_rel': hit3_rel, 'hit2_rel': hit2_rel,  'hit1_rel': hit1_rel,
+            'mr_dual': mr_dual, 'mrr_dual': mrr_dual, 'hit10_dual': hit10_dual, 'hit5_dual': hit5_dual, 'hit3_dual': hit3_dual, 'hit1_dual': hit1_dual
         }

@@ -33,9 +33,12 @@ def get_metrics(rank):
 	mr = np.mean(rank)
 	mrr = np.mean(1 / rank)
 	hit10 = np.sum(rank < 11) / len(rank)
+	hit5 = np.sum(rank < 6) / len(rank)
+	hit4 = np.sum(rank < 5) / len(rank)
 	hit3 = np.sum(rank < 4) / len(rank)
+	hit2 = np.sum(rank < 3) / len(rank)
 	hit1 = np.sum(rank < 2) / len(rank)
-	return mr, mrr, hit10, hit3, hit1
+	return mr, mrr, hit10, hit5, hit4, hit3, hit2, hit1
 
 def create_hash(params_string: str) -> str:
     R"""
