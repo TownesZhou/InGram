@@ -16,6 +16,7 @@ ckpt/
 ckpt_paper/
 
 # Slurm related scripts and logs
+slurm_log/
 debug_slurm.sh
 debug_slurm.txt
 sweep_slurm.sh
@@ -29,5 +30,4 @@ list_runs.sh
 commands.txt
 
 # Notebook data
-notebooks/raw/
-notebooks/processed/
+notebooks/
