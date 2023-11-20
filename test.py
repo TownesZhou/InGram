@@ -11,15 +11,18 @@ from evaluation import evaluate_mc
 from initialize import initialize
 import os
 import wandb
+import time
 
 # TODO: integrate with Weights & Biases
 
 args = parse(test=True)
 
-assert args.data_name in os.listdir(args.data_path), f"{args.data_name} Not Found"
+
 # If alt-test-data is specified, check that it exists
 if args.alt_test_data != "":
 	assert args.alt_test_data in os.listdir(args.data_path), f"{args.alt_test_data} Not Found"
+else:
+	assert args.data_name in os.listdir(args.data_path), f"{args.data_name} Not Found"
 
 # Initialize Weights & Biases logging, and log the arguments for this run
 run_config = vars(args)
@@ -75,6 +78,8 @@ my_model.load_state_dict(torch.load(ckpt_path)["model_state_dict"])
 
 
 print("Test")
+test_start_time = time.time()
+
 my_model.eval()
 test_msg = test.msg_triplets
 test_sup = test.sup_triplets
@@ -96,7 +101,11 @@ test_msg = torch.tensor(test_msg).cuda()
 
 metrics = evaluate_mc(
 	my_model, test, 
-	test_init_emb_ent_samples, test_init_emb_rel_samples, test_relation_triplets_samples)
+	test_init_emb_ent_samples, test_init_emb_rel_samples, test_relation_triplets_samples,
+	full_graph_neg = args.full_graph_neg)
+
+test_end_time = time.time()
+print(f"Test Time: {test_end_time - test_start_time}")
 
 # Log to Weights & Biases
 wandb.log(metrics)

@@ -144,7 +144,8 @@ class TestNewData():
 					continue
 				sup_triplets.append((self.ent2id[h], self.rel2id[r], self.ent2id[t]))
 				assert (self.ent2id[h], self.rel2id[r], self.ent2id[t]) not in msg_triplets, \
-					(self.ent2id[h], self.rel2id[r], self.ent2id[t]) 
+					f"Triplet {(h, r, t)} in supervision set is also in message set"
+					# (self.ent2id[h], self.rel2id[r], self.ent2id[t]) 
 				total_triplets.append((h,r,t))
 		# Since under our new setting, the validation data are train.txt as message set and valid.txt as supervision set
 		# And the test data are msg.txt as message set and test.txt as supervision set

@@ -25,6 +25,7 @@ def parse(test=False):
         parser.add_argument('--run_hash', default = "", type = str)
         parser.add_argument('--data_name_run_hash', default = "", type = str)  # Supercedes both --data_name and --run_hash
         parser.add_argument('--alt-test-data', default = "", type = str, help="Alternative test data to use")
+        parser.add_argument('--full_graph_neg', action = 'store_true', help="Use full graph negative sampling for nodes")
     parser.add_argument('-v', '--validation_epoch', default = 200, type = int)
     parser.add_argument('--num_head', default = 8, type = int)
     parser.add_argument('--num_neg', default = 10, type = int)
@@ -50,6 +51,9 @@ def parse(test=False):
             ### DEBUG ###
             print(f"Specified data_name_run_hash = {args.data_name_run_hash}")
             print(f"Using data_name = {args.data_name}, run_hash = {args.run_hash}")
+        # If alt-test-data is specified, also save and later overwrite the data_path
+        if args.alt_test_data != "":
+            data_path = args.data_path
         remaining_args = []
         with open(f"./ckpt/{args.exp}/{args.data_name}/{args.run_hash}/config.json") as f:
             configs = json.load(f)
@@ -58,6 +62,9 @@ def parse(test=False):
                 vars(args)[key] = configs[key]
             else:
                 remaining_args.append(key)
+        # If alt-test-data is specified, overwrite the data_path
+        if args.alt_test_data != "":
+            args.data_path = data_path
         # Reset args.best to True
         args.best = True
 

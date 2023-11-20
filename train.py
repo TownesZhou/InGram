@@ -12,6 +12,7 @@ from initialize import initialize
 from my_parser import parse
 import wandb
 import json
+import time
 
 # TODO: Integrate with Weights & Bias
 
@@ -86,6 +87,8 @@ early_stop_counter = 0
 BEST_METRIC_KEY = 'mrr_ent'
 
 for epoch in pbar:
+	train_time_start = time.time()
+
 	optimizer.zero_grad()
 	msg, sup = train.split_transductive(0.75)
 
@@ -105,23 +108,24 @@ for epoch in pbar:
 	total_loss += loss.item()
 	pbar.set_description(f"loss {loss.item()}")	
 
+	train_time_end = time.time()
+	print(f"Epoch {epoch} train time: {train_time_end - train_time_start}")
+
 	# Log training loss to Weights & Biases
 	wandb.log({"loss": loss.item()})
 
 	if ((epoch + 1) % valid_epochs) == 0:
 		print("Validation")
+		valid_time_start = time.time()
+
 		my_model.eval()
 		val_init_emb_ent, val_init_emb_rel, val_relation_triplets = initialize(valid, valid.msg_triplets, \
 																				d_e, d_r, B)
 
 		metrics = evaluate(my_model, valid, epoch, val_init_emb_ent, val_init_emb_rel, val_relation_triplets)
-
-		# if not args.no_write:
-		# 	torch.save({'model_state_dict': my_model.state_dict(), \
-		# 				'optimizer_state_dict': optimizer.state_dict(), \
-		# 				'inf_emb_ent': val_init_emb_ent, \
-		# 				'inf_emb_rel': val_init_emb_rel}, \
-		# 		f"{ckpt_path}/{file_format}_{epoch+1}.ckpt")
+		
+		valid_time_end = time.time()
+		print(f"Epoch {epoch} validation time: {valid_time_end - valid_time_start}")
 		
 		# Save best checkpoint based on MRR. Best checkpoint is named best.ckpt
 		if metrics[BEST_METRIC_KEY] > best_val_mrr:
