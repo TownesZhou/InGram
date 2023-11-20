@@ -5,19 +5,19 @@
 To train a model on the PediaTypes `DB2WD` dataset with logging to terminal, run
 
 ```shell
-Python train.py --data_path data/PediaTypes/ --data_name DB2WD-15K-V1 --exp PediaTypes --seed 42
+Python train.py --data_path data/PediaTypes/ --data_name DB2WD-15K-V2 --exp PediaTypes --seed 42
 ```
 
 To train a model on the same dataset but log to Weights & Biases, run
 
 ```shell
-Python train.py --data_path data/PediaTypes/ --data_name DB2WD-15K-V1 --exp PediaTypes --seed 42 --wandb --wandb-project <your wandb project name> --wandb-entity <your account/team name> --wandb-job-type <wandb job type>
+Python train.py --data_path data/PediaTypes/ --data_name DB2WD-15K-V2 --exp PediaTypes --seed 42 --wandb --wandb-project <your wandb project name> --wandb-entity <your account/team name> --wandb-job-type <wandb job type>
 ```
 
-To test the best checkpoint saved from the above training run, which should be located in `ckpt/PediaTypes/DB2WD-15K-V1/<run_hash>`, run
+To test the best checkpoint saved from the above training run, which should be located in `ckpt/PediaTypes/DB2WD-15K-V2/<run_hash>`, run
 
 ```shell
-test.py --best --run_hash <run_hash> --data_name DB2WD-15K-V1 --exp PediaTypes
+test.py --best --run_hash <run_hash> --data_name DB2WD-15K-V2 --exp PediaTypes
 ```
 
 where <run_hash> is the hash of the hyperparameters of the previous training run. The hash is printed to the terminal when the training run is started.
@@ -25,7 +25,7 @@ where <run_hash> is the hash of the hyperparameters of the previous training run
 Or alternatively, you can specify data_name and run_hash together using the `--data_name_run_hash` argument:
 
 ```shell
-test.py --best --data_name_run_hash DB2WD-15K-V1/<run_hash> --exp PediaTypes
+test.py --best --data_name_run_hash DB2WD-15K-V2/<run_hash> --exp PediaTypes
 ```
 
 ## Summary of hyperparameters
@@ -41,40 +41,14 @@ Values of the other hyperparameters are those used in the original paper and rep
 
 For final baseline comparisons, we trained the models with the following hyperparameters:
 
-On PediaTypes version 1 all scenarios:
+On PediaTypes all scenarios:
 ```
 --margin 2.0 --learning_rate 0.001 --num_layer_ent 4 --num_layer_rel 3 --dimension_entity 32 --dimension_relation 32 --hidden_dimension_ratio_entity 8 --hidden_dimension_ratio_relation 4 --num_bin 10 --num_epoch 10000 --validation_epoch 200 --num_head 8 --num_neg 10
 ```
 
-On WikiTopics-v2 all scenarios:
+On WikiTopics all scenarios:
 ```
 --margin 2.0 --learning_rate 0.001 --num_layer_ent 4 --num_layer_rel 3 --dimension_entity 32 --dimension_relation 32 --hidden_dimension_ratio_entity 8 --hidden_dimension_ratio_relation 4 --num_bin 10 --num_epoch 10000 --validation_epoch 200 --num_head 8 --num_neg 10
-```
-
-On WikiTopics-MT1 (training split):
-```
---margin 2.0 --learning_rate 0.001 --num_layer_ent 4 --num_layer_rel 2 --dimension_entity 32 --dimension_relation 32 --hidden_dimension_ratio_entity 8 --hidden_dimension_ratio_relation 4 --num_bin 10 --num_epoch 10000 --validation_epoch 200 --num_head 8 --num_neg 10
-```
-
-On WikiTopics-MT2 (training split):
-```
---margin 2.0 --learning_rate 0.001 --num_layer_ent 4 --num_layer_rel 2 --dimension_entity 32 --dimension_relation 32 --hidden_dimension_ratio_entity 8 --hidden_dimension_ratio_relation 4 --num_bin 10 --num_epoch 10000 --validation_epoch 200 --num_head 8 --num_neg 10
-```
-
-On WikiTopics-MT3 (training split):
-```
---margin 2.0 --learning_rate 0.001 --num_layer_ent 4 --num_layer_rel 3 --dimension_entity 32 --dimension_relation 32 --hidden_dimension_ratio_entity 8 --hidden_dimension_ratio_relation 4 --num_bin 10 --num_epoch 10000 --validation_epoch 200 --num_head 8 --num_neg 10
-```
-
-
-On WikiTopics-MT4 (training split):
-```
---margin 2.0 --learning_rate 0.0005 --num_layer_ent 4 --num_layer_rel 3 --dimension_entity 32 --dimension_relation 32 --hidden_dimension_ratio_entity 8 --hidden_dimension_ratio_relation 4 --num_bin 10 --num_epoch 10000 --validation_epoch 200 --num_head 8 --num_neg 10
-```
-
-On FBNELL (training split):
-```
---margin 2.0 --learning_rate 0.0005 --num_layer_ent 2 --num_layer_rel 2 --dimension_entity 32 --dimension_relation 32 --hidden_dimension_ratio_entity 8 --hidden_dimension_ratio_relation 4 --num_bin 10 --num_epoch 10000 --validation_epoch 200 --num_head 8 --num_neg 10
 ```
 
 # Change Log
@@ -167,24 +141,6 @@ Replace `np.int` with built-in `int` to avoid type conversion error when computi
 
 See `utils.py` for modification details.
 
-## Dataset modification
-
-### WikiTopics-MT
-
-- Deleted `Q7569 P1552 Q276258` from mt3 training split `valid.txt`.
-
-### FBNELL
-
-- Deleted the following triplets from training split `valid.txt`:
-
-```
-concept:agriculturalproduct:herbs concept:agriculturalproductgrowninlandscapefeatures concept:landscapefeatures:islands
-concept:beverage:coffee concept:agriculturalproductgrowninlandscapefeatures concept:landscapefeatures:islands
-concept:beverage:new concept:atlocation concept:landscapefeatures:islands
-concept:agriculturalproduct:pigs concept:animalistypeofanimal concept:mammal:social_animals
-concept:animal:animals002 concept:animalistypeofanimal concept:reptile:small_birds
-(and others, see notebooks/clean_data.ipynb)
-```
 
 # InGram: Inductive Knowledge Graph Embedding via Relation Graphs
 This code is the official implementation of the following [paper](https://proceedings.mlr.press/v202/lee23c.html):
