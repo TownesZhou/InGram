@@ -22,6 +22,8 @@ debug_slurm.txt
 sweep_slurm.sh
 sweep_slurm.txt
 sweep-slurm.txt
+run_slurm.sh
+run_slurm.txt
 
 # Other utility scripts
 list_runs.sh
