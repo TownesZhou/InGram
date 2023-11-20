@@ -1,4 +1,6 @@
-# Modified for Baseline Comparisons
+# Double Equivariant InGram (DEq-InGram)
+
+Modified from the original InGram implementation, which can be found here: https://github.com/bdi-lab/InGram
 
 ## TL;DR - Modified example train and test command
 
